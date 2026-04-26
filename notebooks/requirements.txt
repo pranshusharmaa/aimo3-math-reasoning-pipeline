@@ -1,0 +1,10 @@
+numpy
+pandas
+sympy
+polars
+tqdm
+torch
+transformers
+accelerate
+vllm
+jupyter_client
