@@ -1,0 +1,15 @@
+__pycache__/
+.ipynb_checkpoints/
+.env
+.venv/
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.ckpt
+outputs/
+runs/
+wandb/
+.cache/
+kaggle.json
+*.log
