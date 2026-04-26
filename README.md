@@ -6,18 +6,6 @@ This project studies how language models can be made more reliable on difficult 
 
 The repository contains three research notebooks showing the progression of the system from a stable baseline to heavier ablation variants.
 
-## Status
-
-Status: in progress / research prototype
-
-This is not presented as a finished competition solution or a polished leaderboard package. It is a research log studying which inference-time strategies improve reliability under fixed compute.
-
-The notebooks are organized around three questions:
-
-1. Can multi-branch reasoning and voting produce a stable baseline?
-2. When should the system spend extra compute on rescue branches?
-3. Can verification or selector logic improve answer choice when votes conflict?
-
 ## Notebooks
 
 ### `01_stable_baseline_pipeline.ipynb`
