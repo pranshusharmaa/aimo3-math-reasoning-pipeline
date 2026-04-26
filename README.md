@@ -190,3 +190,7 @@ Main lesson:
 ## Technical focus
 
 LLM reasoning pipelines, mathematical problem solving, tool-integrated reasoning, self-consistency, adaptive inference, deterministic verification, selector reranking, and competition-style AI systems.
+
+## Environment note
+
+These notebooks were developed in a Kaggle-style GPU environment. Some dependencies, especially `vllm`, may require a Linux GPU runtime and may not install cleanly on every local machine.
