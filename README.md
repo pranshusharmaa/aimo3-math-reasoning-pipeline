@@ -1,10 +1,14 @@
-# AIMO 3 Mathematical Reasoning Pipeline
+**AIMO 3 Mathematical Reasoning Pipeline** — Completed competition research archive for multi-branch mathematical reasoning on AIMO-style problems. The notebooks document adaptive time allocation, tool-integrated reasoning, deterministic verification, rescue branches, selector reranking, and vote-based answer selection, along with lessons learned from failed judging/probing experiments.
 
-In-progress research project exploring multi-branch mathematical reasoning pipelines for AIMO-style competition problems.
+## Status
 
-This project studies how language models can be made more reliable on difficult math problems using adaptive inference, tool-integrated reasoning, deterministic verification, rescue branches, selector-based reranking, and vote-based answer selection.
+Status: completed competition research archive
 
-The repository contains three research notebooks showing the progression of the system from a stable baseline to heavier ablation variants.
+This repository documents my AIMO 3 reasoning pipeline experiments after the competition ended. The notebooks are kept as a research record of the approaches I tested, the ablations I ran, and the design lessons I learned from building multi-branch mathematical reasoning systems under fixed compute constraints.
+
+This is not presented as a polished production package. It is a completed experiment log showing how the pipeline evolved from a stable baseline into selector-based and verification-gated variants.
+
+The main goal of this archive is to make the approach, ablations, and failure modes understandable.
 
 ## Notebooks
 
@@ -104,17 +108,85 @@ The three notebooks represent different ablation directions:
 - The selector and verification methods are experimental.
 - This repository does not include private competition data or hidden test labels.
 
-## Next steps
+## Experimental lessons
 
-- clean the pipeline into reusable Python modules
-- add a shared answer extraction utility
-- standardize logging across all versions
-- build a small public evaluation set for reproducibility
-- compare selector vs verification on the same problems
-- add problem difficulty estimation
-- test adaptive branch allocation policies
-- document failure cases more systematically
+The main finding was that reliability did not come from one trick. It came from combining several weak signals carefully.
 
+Majority vote helped when the vote was strong, but weak plurality was dangerous. LLM-as-judge and probing were less reliable than expected. Rescue branches helped most when triggered by uncertainty, not when used blindly. Python/tool-integrated reasoning helped with arithmetic and checking, but it did not fix wrong problem setups. Deterministic verification was the strongest signal whenever it was available.
+
+The overall lesson:
+
+> AIMO-style performance depends heavily on inference-time systems design: when to sample, when to stop, when to verify, and when not to trust the model.
+
+## What I learned from the experiments
+
+These notebooks were useful because several ideas that looked strong in theory were weaker in practice.
+
+### 1. Majority vote helps, but only when the vote is strong
+
+Simple self-consistency was useful when many branches independently landed on the same answer. However, weak plurality was unreliable. A 2-2 split, 3-2 split, or low-support winner usually meant the model had not really solved the problem.
+
+Main lesson:
+
+> vote count is a signal, not proof.
+
+### 2. LLM-as-judge was not reliable enough by itself
+
+The GenSelect-style selector sounded attractive because it could compare candidate solutions and pick the most convincing one. In practice, it was noisy. It could be persuaded by cleaner-looking reasoning even when the final answer was wrong.
+
+Main lesson:
+
+> model-based judging should not override hard checks or strong deterministic evidence.
+
+### 3. Probing was not useful in practice
+
+Probe branches looked promising as a way to catch missed minority answers, but in practice they were too noisy. They rarely corrected wrong majorities, and they often added more uncertainty instead of resolving it.
+
+The extra compute was better spent on rescue branches or verification-style checks.
+
+Main lesson:
+
+> probing was not a reliable signal in this pipeline.
+
+### 4. Rescue branches worked best after weak consensus
+
+Adding more branches blindly wasted compute. Rescue branches helped most when the initial vote distribution was weak, tied, or suspicious. This made adaptive branching more useful than a fixed high branch count for every problem.
+
+Main lesson:
+
+> spend extra compute only when the first branches show uncertainty.
+
+### 5. Python/tool-integrated reasoning helped with arithmetic, but not reasoning gaps
+
+Python execution reduced arithmetic and enumeration mistakes, especially in modular arithmetic, counting, and algebraic checking. But it did not solve problems where the model chose the wrong setup or misunderstood the structure.
+
+Main lesson:
+
+> tools help verify computation, but they do not replace mathematical insight.
+
+### 6. Early stopping needed gates
+
+Stopping as soon as one answer got enough votes was risky if several branches shared the same flawed reasoning pattern. Gated early stopping worked better: stop early only when vote strength agreed with extraction quality, tool checks, or constraint checks.
+
+Main lesson:
+
+> early stopping should depend on confidence quality, not just answer frequency.
+
+
+### 7. I could not find a reliable general verifier
+
+The strongest missing piece was answer verification.
+
+Python/tool checks helped when the problem had clear computational constraints, but they were not enough for many AIMO-style problems. A wrong setup could still lead to a clean-looking calculation, and the system had no reliable way to tell that the reasoning path was flawed.
+
+This made vote-only selection risky, but it also meant verification could not fully replace voting.
+
+Main lesson:
+
+> the hardest part was not producing candidate answers, it was proving which candidate was right.
+Main lesson:
+
+> answer selection should be treated as evidence aggregation under uncertainty.
 ## Technical focus
 
 LLM reasoning pipelines, mathematical problem solving, tool-integrated reasoning, self-consistency, adaptive inference, deterministic verification, selector reranking, and competition-style AI systems.
